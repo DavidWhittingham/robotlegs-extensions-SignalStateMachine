@@ -5,6 +5,7 @@ package robotlegs.bender.extensions.signalStateMachine.decoding
     import org.osflash.statemachine.base.BaseXMLStateDecoder;
     import org.osflash.statemachine.core.IState;
     import org.osflash.statemachine.errors.StateDecodeError;
+    
     import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
     import robotlegs.bender.extensions.signalStateMachine.api.ISignalState;
     import robotlegs.bender.extensions.signalStateMachine.signals.Cancelled;
@@ -170,16 +171,24 @@ package robotlegs.bender.extensions.signalStateMachine.decoding
          * @return an instance of the state described in the data
          */
         protected function getState(stateDef:Object):ISignalState
-        {
+        {			
             var signalName:String = stateDef.@name.toString();
             return new SignalState(
+                signalName,
+                stateDef.entered.length() != 0	 		? this.getSignal(Entered, signalName) : null,
+                stateDef.enteringGuard.length() != 0 	? this.getSignal(EnteringGuard, signalName) : null,
+                stateDef.exitingGuard.length() != 0 	? this.getSignal(ExitingGuard, signalName) : null,
+                stateDef.tearDown.length() != 0 		? this.getSignal(TearDown, signalName) : null,
+                stateDef.cancelled.length() != 0 		? this.getSignal(Cancelled, signalName) : null
+                );
+/*            return new SignalState(
                 signalName,
                 stateDef.entered != null ? this.getSignal(Entered, signalName) : null,
                 stateDef.enteringGuard != null ? this.getSignal(EnteringGuard, signalName) : null,
                 stateDef.exitingGuard != null ? this.getSignal(ExitingGuard, signalName) : null,
                 stateDef.tearDown != null ? this.getSignal(TearDown, signalName) : null,
                 stateDef.cancelled != null ? this.getSignal(Cancelled, signalName) : null
-                );
+                );*/
         }
 
         /**
@@ -281,6 +290,7 @@ package robotlegs.bender.extensions.signalStateMachine.decoding
             }
 
             this.signalCommandMap.map(signalClass, stateName).toCommand(commandClass).withGuards(guardClasses);
+//            this.signalCommandMap.map(signalClass).toCommand(commandClass).withGuards(guardClasses);
         }
 
         private function mapSignalCommand(stateName:String, signalClass:Class, phaseDecoder:PhaseDecoder):void
@@ -297,6 +307,7 @@ package robotlegs.bender.extensions.signalStateMachine.decoding
                     if (commandClass != null)
                     {
                         this.signalCommandMap.map(signalClass, stateName).toCommand(commandClass);
+//                        this.signalCommandMap.map(signalClass).toCommand(commandClass);
                     }
                 }
                 else
@@ -310,7 +321,9 @@ package robotlegs.bender.extensions.signalStateMachine.decoding
 }
 
 import flash.utils.describeType;
+
 import org.osflash.statemachine.core.ITransitionPhase;
+
 import robotlegs.bender.extensions.signalStateMachine.api.IClassBag;
 import robotlegs.bender.extensions.signalStateMachine.transitioning.TransitionPhase;
 
@@ -465,7 +478,9 @@ internal class PhaseDecoderItem
 
     public function get isError():Boolean
     {
-        if (TransitionPhase.ENTERED.equals(phase) || TransitionPhase.TEAR_DOWN.equals(phase) || TransitionPhase.CANCELLED.equals(phase))
+        if (TransitionPhase.ENTERED.equals(phase) || TransitionPhase.TEAR_DOWN.equals(phase) || 
+			TransitionPhase.CANCELLED.equals(phase) || TransitionPhase.ENTERING_GUARD.equals(phase) 
+			|| TransitionPhase.EXITING_GUARD.equals(phase))
         {
             return false;
         }
