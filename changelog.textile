@@ -1,5 +1,9 @@
 h2. Change log
 
+h3. robotlegs-extensions-SignalStateMachine v0.5.0: 2015-06-22
+
+* Updated the extension for use with Robotlegs 2.2.1 and SignalCommandMap Extension (tests have not yet been updated)
+
 h3. robotlegs-extensions-SignalStateMachine v0.5.0: 2013-08-16
 
 * Updated the extension for use with Robotlegs 2.0+ (tests have not yet been updated)
